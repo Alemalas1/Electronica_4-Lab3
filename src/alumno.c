@@ -27,8 +27,7 @@ SPDX-License-Identifier: MIT
 *************************************************************************************************/
 
 /** @file alumno.c
- ** @brief Implementación del TDA Alumno con soporte de memoria estática y
- *dinámica
+ ** @brief Implementación del TDA Alumno con soporte de memoria estática y dinámica.
  **/
 
 /* === Headers files inclusions
@@ -42,28 +41,54 @@ SPDX-License-Identifier: MIT
 /* === Macros definitions
  * ====================================================================== */
 
+#ifdef MODO_ESTATICO
+/**
+ * @brief Tamaño máximo del pool estático de alumnos.
+ */
+#define MAX_ALUMNOS 10
+#endif
+
 /* === Private data type declarations
  * ========================================================== */
 
 /**
- * @brief Atributos del Alumno (Privados)
+ * @brief Atributos internos del Alumno (privados).
+ * @details Esta estructura solo es visible dentro de alumno.c.
+ * Ningún módulo externo puede acceder a sus campos directamente.
  */
 struct Alumno_t {
-    char apellido[50];
-    char nombre[50];
-    uint32_t documento;
+    char nombre[50];    /**< Nombre del alumno */
+    char apellido[50];  /**< Apellido del alumno */
+    uint32_t documento; /**< Número de documento del alumno */
 };
 
 /* === Private function declarations
  * =========================================================== */
 
 /**
- * @brief Serializa un campo de texto en formato "clave":"valor"
+ * @brief Serializa un campo de texto en formato JSON "clave":"valor".
+ * @details Función interna usada exclusivamente por AlumnoSerializar.
+ * Al ser static no es visible fuera de este archivo.
+ *
+ * @param[in]  clave     Nombre del campo JSON.
+ * @param[in]  valor     Contenido del campo como cadena de texto.
+ * @param[out] resultado Buffer donde se escribe el resultado.
+ * @param[in]  espacio   Bytes disponibles en el buffer.
+ * @return int Caracteres escritos (sin el nulo), o -1 si el espacio es insuficiente.
  */
 static int SerializarTexto(const char * clave, const char * valor, char * resultado, int espacio);
 
 /**
- * @brief Serializa un campo numérico en formato "clave":valor
+ * @brief Serializa un campo numérico en formato JSON "clave":valor.
+ * @details Función interna usada exclusivamente por AlumnoSerializar.
+ * Al ser static no es visible fuera de este archivo.
+ * Los valores numéricos en JSON no llevan comillas.
+ *
+ * @param[in]  clave     Nombre del campo JSON.
+ * @param[in]  valor     Valor entero de 32 bits a serializar.
+ * @param[out] resultado Buffer donde se escribe el resultado.
+ * @param[in]  espacio   Bytes disponibles en el buffer.
+ * @return int Caracteres escritos (sin el nulo), o -1 si el espacio es insuficiente.
  */
 static int SerializarNumero(const char * clave, uint32_t valor, char * resultado, int espacio);
 
@@ -72,16 +97,16 @@ static int SerializarNumero(const char * clave, uint32_t valor, char * resultado
 
 #ifdef MODO_ESTATICO
 /**
- * @brief Instancia única para asignación estática de memoria
+ * @brief Pool estático de estructuras Alumno_t.
  */
-static struct Alumno_t instancia_unica;
+static struct Alumno_t pool[MAX_ALUMNOS];
 
 /**
- * @brief Bandera para controlar el uso de la instancia estática
+ * @brief Índice del próximo slot disponible en el pool.
  */
-
-static int ocupado = 0;
+static int pool_index = 0;
 #endif
+
 /* === Public variable definition
  * ============================================================= */
 
@@ -89,6 +114,10 @@ static int ocupado = 0;
  * ============================================================ */
 
 static int SerializarTexto(const char * clave, const char * valor, char * resultado, int espacio) {
+    /* Corrección docente: debe haber espacio para al menos el terminador nulo */
+    if (espacio <= 1) {
+        return -1;
+    }
     int escrito = snprintf(resultado, espacio, "\"%s\":\"%s\"", clave, valor);
     if ((escrito >= espacio) || (escrito < 0)) {
         return -1;
@@ -97,6 +126,10 @@ static int SerializarTexto(const char * clave, const char * valor, char * result
 }
 
 static int SerializarNumero(const char * clave, uint32_t valor, char * resultado, int espacio) {
+    /* Corrección docente: debe haber espacio para al menos el terminador nulo */
+    if (espacio <= 1) {
+        return -1;
+    }
     int escrito = snprintf(resultado, espacio, "\"%s\":%u", clave, valor);
     if ((escrito >= espacio) || (escrito < 0)) {
         return -1;
@@ -111,15 +144,18 @@ Alumno AlumnoCrear(const char * nombre, const char * apellido, uint32_t document
     Alumno self = NULL;
 
 #ifdef MODO_ESTATICO
-    if (ocupado == 0) {
-        self = &instancia_unica;
-        ocupado = 1;
+    /* Asignación estática: verificar que queden slots disponibles en el pool */
+    if (pool_index < MAX_ALUMNOS) {
+        self = &pool[pool_index];
+        pool_index++;
     }
 #else
+    /* Asignación dinámica: solicitar memoria al Heap */
     self = malloc(sizeof(struct Alumno_t));
 #endif
 
     if (self != NULL) {
+        /* strncpy es más seguro que strcpy: limita los bytes copiados */
         memset(self->nombre, 0, sizeof(self->nombre));
         strncpy(self->nombre, nombre, sizeof(self->nombre) - 1);
 
@@ -128,6 +164,7 @@ Alumno AlumnoCrear(const char * nombre, const char * apellido, uint32_t document
 
         self->documento = documento;
     }
+
     return self;
 }
 
@@ -135,47 +172,55 @@ int AlumnoSerializar(Alumno alumno, char * resultado, int espacio) {
     int total = 0;
     int escrito;
 
-    // Verificación solicitada por corrección docente: espacio <= 1
+    /* Corrección docente: espacio <= 1 para garantizar lugar al terminador nulo */
     if (espacio <= 1) {
         return -1;
     }
 
-    // Inicialización del buffer con el carácter de apertura
+    /* Apertura del JSON — strncpy es más seguro que strcpy */
     strncpy(resultado, "{", espacio);
     total = 1;
 
-    // Serialización del campo Nombre
+    /* Campo "nombre" */
     escrito = SerializarTexto("nombre", alumno->nombre, resultado + total, espacio - total);
-    if (escrito < 0)
+    if (escrito < 0) {
         return -1;
+    }
     total += escrito;
 
-    // Coma y Apellido
-    if (total >= espacio - 1)
+    /* Separador entre campos */
+    if (espacio - total <= 1) {
         return -1;
-    strncat(resultado, ",", espacio - total - 1);
+    }
+    strncpy(resultado + total, ",", espacio - total);
     total += 1;
 
+    /* Campo "apellido" */
     escrito = SerializarTexto("apellido", alumno->apellido, resultado + total, espacio - total);
-    if (escrito < 0)
+    if (escrito < 0) {
         return -1;
+    }
     total += escrito;
 
-    // Coma y Documento
-    if (total >= espacio - 1)
+    /* Separador entre campos */
+    if (espacio - total <= 1) {
         return -1;
-    strncat(resultado, ",", espacio - total - 1);
+    }
+    strncpy(resultado + total, ",", espacio - total);
     total += 1;
 
+    /* Campo "documento" */
     escrito = SerializarNumero("documento", alumno->documento, resultado + total, espacio - total);
-    if (escrito < 0)
+    if (escrito < 0) {
         return -1;
+    }
     total += escrito;
 
-    // Llave de cierre
-    if (total >= espacio - 1)
+    /* Cierre del JSON */
+    if (espacio - total <= 1) {
         return -1;
-    strncat(resultado, "}", espacio - total - 1);
+    }
+    strncpy(resultado + total, "}", espacio - total);
     total += 1;
 
     return total;

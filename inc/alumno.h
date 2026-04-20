@@ -30,8 +30,10 @@ SPDX-License-Identifier: MIT
 #define ALUMNO_H_
 
 /** @file alumno.h
- ** @brief Definición de la estructura de datos y funciones para gestionar
- *alumnos
+ ** @brief Interfaz pública del módulo Alumno (patrón ADT).
+ ** @details Expone únicamente el tipo opaco Alumno y las funciones públicas
+ ** del módulo. La definición interna de la estructura es privada y solo
+ ** accesible desde alumno.c, garantizando el encapsulamiento ADT.
  **/
 
 /* === Headers files inclusions
@@ -57,8 +59,10 @@ extern "C" {
  */
 
 /**
- * @brief Estructura opaca para representar a un Alumno.
- * El usuario del módulo no conoce los campos internos (encapsulamiento).
+ * @brief Puntero opaco al tipo Alumno_t.
+ * @details El usuario del módulo solo conoce que Alumno es un puntero.
+ * No puede acceder ni modificar los campos internos directamente,
+ * lo cual garantiza el encapsulamiento del patrón ADT.
  */
 typedef struct Alumno_t * Alumno;
 
@@ -72,21 +76,30 @@ typedef struct Alumno_t * Alumno;
 
 /**
  * @brief Crea una nueva instancia de Alumno.
- * * @param nombre Puntero a la cadena con el nombre del alumno.
- * @param apellido Puntero a la cadena con el apellido del alumno.
- * @param documento Número de documento del alumno.
- * @return Alumno Puntero a la estructura creada o NULL si no hay memoria.
+ * @details Según la configuración de compilación, la memoria puede ser
+ * asignada de forma estática (pool fijo) o dinámica (malloc).
+ * Para compilar con asignación estática: make MODO=estatico
+ * Para compilar con asignación dinámica: make (sin el flag anterior)
+ *
+ * @param[in] nombre    Puntero a la cadena con el nombre del alumno.
+ * @param[in] apellido  Puntero a la cadena con el apellido del alumno.
+ * @param[in] documento Número de documento del alumno.
+ * @return Alumno Puntero a la estructura creada, o NULL si no hay memoria disponible.
  */
 Alumno AlumnoCrear(const char * nombre, const char * apellido, uint32_t documento);
 
 /**
  * @brief Serializa los datos del alumno en formato JSON.
- * * @param alumno Puntero a la instancia del alumno a serializar.
- * @param resultado Buffer donde se almacenará la cadena JSON resultante.
- * @param tamaño Espacio total disponible en el buffer resultado.
- * @return int Cantidad de caracteres escritos o -1 en caso de error de espacio.
+ * @details Genera una cadena con el formato:
+ * {"nombre":"...","apellido":"...","documento":...}
+ *
+ * @param[in]  alumno    Puntero a la instancia del alumno a serializar.
+ * @param[out] resultado Buffer donde se almacenará la cadena JSON resultante.
+ * @param[in]  espacio   Espacio total disponible en el buffer resultado.
+ * @return int Cantidad de caracteres escritos (sin el nulo), o -1 si el espacio
+ * es insuficiente.
  */
-int AlumnoSerializar(Alumno alumno, char * resultado, int tamaño);
+int AlumnoSerializar(Alumno alumno, char * resultado, int espacio);
 
 /* === End of conditional blocks
  * ===================================================================================

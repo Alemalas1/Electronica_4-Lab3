@@ -6,7 +6,6 @@ INC_DIR = ./inc
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj
 BIN_DIR = $(BUILD_DIR)/bin
-DOC_DIR = ./doc
 
 # Búsqueda de archivos
 SRC_FILES = $(wildcard $(SRC_DIR)/*.c)
@@ -16,13 +15,11 @@ OBJ_FILES = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC_FILES))
 CC = gcc
 CFLAGS = -Wall -pedantic -Werror -I $(INC_DIR)
 
-# ---COMPILACIÓN CONDICIONAL ---
-# Si en la terminal escribís "make MODO=estatico", entra por acá:
+# --- COMPILACIÓN CONDICIONAL ---
 ifeq ($(MODO), estatico)
     CFLAGS += -DMODO_ESTATICO
     OUTPUT_BIN = $(BIN_DIR)/app_estatica
 else
-# Si solo escribís "make", entra por acá (modo dinámico por defecto):
     OUTPUT_BIN = $(BIN_DIR)/app_dinamica
 endif
 # -------------------------------------------
@@ -46,7 +43,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 # --- REGLA PARA DOXYGEN ---
 doc:
 	doxygen Doxyfile
-	@echo "Documentación generada en la carpeta $(DOC_DIR)"
+	@echo "Documentación generada en la carpeta $(BUILD_DIR)/doc"
 
 # ==========================================
 # 3. REGLAS DE UTILIDAD (Carpetas y Limpieza)
@@ -58,7 +55,7 @@ $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
 clean:
-	rm -rf $(BUILD_DIR) $(DOC_DIR)
-	@echo "Carpetas build/ y doc/ eliminadas correctamente."
+	rm -rf $(BUILD_DIR)
+	@echo "Carpeta build/ eliminada correctamente."
 
 .PHONY: all clean doc
