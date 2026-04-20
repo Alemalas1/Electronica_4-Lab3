@@ -60,7 +60,7 @@ clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR)
 	@echo "Objetos y binarios eliminados. Documentación intacta."
 
-# Botón rojo: Elimina ABSOLUTAMENTE TODO lo generado
+# Elimina ABSOLUTAMENTE TODO lo generado
 clean-all:
 	rm -rf $(BUILD_DIR)
 	@echo "Limpieza profunda: Carpeta build/ eliminada por completo."

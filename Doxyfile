@@ -1,9 +1,9 @@
 # ==============================================================================
-# Doxyfile para Laboratorio 3 - TDA Alumno
+# Doxyfile para Laboratorio 3 
 # ==============================================================================
 
 # --- Configuración del Proyecto ---
-PROJECT_NAME           = "Laboratorio 3 - TDA Alumno (Alejandro Malaspina)"
+PROJECT_NAME           = "Laboratorio 3 - (Alejandro Malaspina)"
 PROJECT_BRIEF          = "Módulo de gestión de alumnos con memoria estática/dinámica"
 OUTPUT_DIRECTORY       = build/doc
 OUTPUT_LANGUAGE        = Spanish
@@ -14,7 +14,7 @@ EXTRACT_ALL            = YES
 EXTRACT_PRIVATE        = YES
 EXTRACT_STATIC         = YES
 
-# --- Rutas de Entrada (Crucial para tu estructura de carpetas) ---
+# --- Rutas de Entrada ---
 INPUT                  = src inc
 FILE_PATTERNS          = *.c *.h
 RECURSIVE              = YES

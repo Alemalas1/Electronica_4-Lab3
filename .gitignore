@@ -6,7 +6,7 @@
 # Aquí se guardan los binarios, los objetos (.o) y la documentación
 build/
 
-# 2. Red de seguridad (por si compilás a mano por fuera del Makefile)
+# 2. Red de seguridad
 *.o
 *.out
 *.exe
