@@ -17,10 +17,10 @@ CFLAGS = -Wall -pedantic -Werror -I $(INC_DIR)
 
 # --- COMPILACIÓN CONDICIONAL ---
 ifeq ($(MODO), estatico)
-    CFLAGS += -DMODO_ESTATICO
-    OUTPUT_BIN = $(BIN_DIR)/app_estatica
+	CFLAGS += -DMODO_ESTATICO
+	OUTPUT_BIN = $(BIN_DIR)/app_estatica
 else
-    OUTPUT_BIN = $(BIN_DIR)/app_dinamica
+	OUTPUT_BIN = $(BIN_DIR)/app_dinamica
 endif
 # -------------------------------------------
 
@@ -42,6 +42,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 
 # --- REGLA PARA DOXYGEN ---
 doc:
+	mkdir -p $(BUILD_DIR)/doc
 	doxygen Doxyfile
 	@echo "Documentación generada en la carpeta $(BUILD_DIR)/doc"
 
@@ -54,8 +55,14 @@ $(OBJ_DIR):
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
+# Limpia solo los compilados, salva la documentación
 clean:
-	rm -rf $(BUILD_DIR)
-	@echo "Carpeta build/ eliminada correctamente."
+	rm -rf $(OBJ_DIR) $(BIN_DIR)
+	@echo "Objetos y binarios eliminados. Documentación intacta."
 
-.PHONY: all clean doc
+# Botón rojo: Elimina ABSOLUTAMENTE TODO lo generado
+clean-all:
+	rm -rf $(BUILD_DIR)
+	@echo "Limpieza profunda: Carpeta build/ eliminada por completo."
+
+.PHONY: all clean clean-all doc
