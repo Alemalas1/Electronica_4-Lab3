@@ -1,0 +1,30 @@
+# ==============================================================================
+# Doxyfile para Laboratorio 3 - TDA Alumno
+# ==============================================================================
+
+# --- Configuración del Proyecto ---
+PROJECT_NAME           = "Laboratorio 3 - TDA Alumno (Alejandro Malaspina)"
+PROJECT_BRIEF          = "Módulo de gestión de alumnos con memoria estática/dinámica"
+OUTPUT_DIRECTORY       = build/doc
+OUTPUT_LANGUAGE        = Spanish
+OPTIMIZE_OUTPUT_FOR_C  = YES
+
+# --- Configuración de Extracción ---
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+
+# --- Rutas de Entrada (Crucial para tu estructura de carpetas) ---
+INPUT                  = src inc
+FILE_PATTERNS          = *.c *.h
+RECURSIVE              = YES
+
+# --- Configuración de Salida ---
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+GENERATE_TREEVIEW      = YES
+
+# --- COMPILACIÓN CONDICIONAL ---
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+PREDEFINED             = MODO_ESTATICO

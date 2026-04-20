@@ -1,0 +1,25 @@
+# ==========================================
+# .gitignore / Lab 3
+# ==========================================
+
+# 1. Carpeta de salida de compilación (Make / Doxygen)
+# Aquí se guardan los binarios, los objetos (.o) y la documentación
+build/
+
+# 2. Red de seguridad (por si compilás a mano por fuera del Makefile)
+*.o
+*.out
+*.exe
+
+# 3. Archivos temporales del sistema
+.DS_Store
+Thumbs.db
+
+# 4. Configuraciones locales de editores y caché
+.vscode/
+.cache/
+
+# 5. Archivos de respaldo de editores de Linux (Vim, Nano, etc.)
+*~
+*.bak
+*.swp
